@@ -98,8 +98,16 @@ test = []
 docs = ["stdlib", "indexmap/serde", "serde_json/preserve_order", "dep:clap", "dep:thiserror", "dep:exitcode"]
 
 # All stdlib functions (base + all enable_* features)
+# The Community ID flow hash is specified as base64 of a SHA-1 digest, so `community_id` is
+# the one base-standard-library function that pulls a cryptographic hash crate (`sha1`, via
+# `community-id`). Embedders under a policy that bans SHA-1 implementations by name cannot
+# remove that crate from their graph while `stdlib-base` requires it, so the function has its
+# own feature. `stdlib` enables it, so `default` and every existing feature combination that
+# reaches `stdlib` are unchanged.
+community-id = ["dep:community-id"]
 stdlib = [
   "stdlib-base",
+  "community-id",
   "enable_crypto_functions",
   "enable_env_functions",
   "enable_system_functions",
@@ -117,7 +125,6 @@ stdlib-base = [
   "dep:convert_case",
   "dep:ciborium",
   "dep:cidr",
-  "dep:community-id",
   "dep:csv",
   "dep:domain",
   "dep:dns-lookup",

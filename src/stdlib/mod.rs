@@ -22,7 +22,6 @@ cfg_if::cfg_if! {
         mod ceil;
         mod casing;
         mod chunks;
-        mod community_id;
         mod compact;
         mod contains;
         mod contains_all;
@@ -191,6 +190,19 @@ cfg_if::cfg_if! {
         mod values;
         mod zip;
 
+        // Community ID (gated by community-id)
+        //
+        // The Community ID flow hash is specified as base64 of a SHA-1 digest, so this is the
+        // one function in the base standard library that pulls a cryptographic hash crate.
+        // Embedders operating under a policy that bans SHA-1 implementations outright cannot
+        // remove `sha1` from their dependency graph while `stdlib-base` requires it, so the
+        // function has its own feature. `stdlib` enables it, so the default build is unchanged.
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "community-id")] {
+                mod community_id;
+            }
+        }
+
         // Environment functions (gated by enable_env_functions)
         cfg_if::cfg_if! {
             if #[cfg(feature = "enable_env_functions")] {
@@ -327,7 +339,6 @@ cfg_if::cfg_if! {
             format_timestamp::FormatTimestamp,
             from_entries::FromEntries,
             from_unix_timestamp::FromUnixTimestamp,
-            self::community_id::CommunityID,
             get::Get,
             haversine::Haversine,
             includes::Includes,
@@ -451,6 +462,10 @@ cfg_if::cfg_if! {
             values::Values,
             zip::Zip,
             self::array::Array,
+
+            // Community ID (community-id)
+            #[cfg(feature = "community-id")]
+            self::community_id::CommunityID,
 
             // Environment functions (enable_env_functions)
             #[cfg(feature = "enable_env_functions")]
