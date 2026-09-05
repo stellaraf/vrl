@@ -21,6 +21,7 @@ Modified files, both of which remain under MPL-2.0:
 |---|---|
 | `Cargo.toml` | `dep:community-id` moves out of `stdlib-base` into a new `community-id` feature; `stdlib` enables that feature. |
 | `src/stdlib/mod.rs` | `mod community_id;` and the `CommunityID` registration are gated on `#[cfg(feature = "community-id")]`. |
+| `benches/stdlib.rs` | The `community_id` benchmark is gated on the same feature, with an empty same-named function in the feature-off build because `criterion_group!`'s `targets` list cannot carry a `#[cfg]`. |
 
 ### What the change does, and what it deliberately does not do
 
@@ -41,6 +42,11 @@ no runtime behaviour, and no other feature changes.
 
 The `community-id` feature is named for the dependency rather than for a family (`enable_*_functions`)
 because it gates one function, not a family.
+
+`benches/stdlib.rs` still names `crc`, `sha2`, `get_env_var`, `get_hostname`, `dns_lookup`,
+`encrypt` and their siblings unconditionally in the same `criterion_group!` list, so that file
+has never compiled without default features. This branch does not fix that and does not make
+it worse: `community_id` is gated so the new feature adds no further name to the list.
 
 ### Upstream
 

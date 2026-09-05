@@ -3241,6 +3241,19 @@ bench_function! {
     }
 }
 
+// `community_id` is behind its own feature, so the bench is too. `criterion_group!`'s
+// `targets` list takes plain paths and cannot carry a `#[cfg]`, so the feature-off build gets
+// an empty bench of the same name rather than a shorter list.
+//
+// The four `enable_*_functions` families are not handled this way here, and this commit does
+// not change that: `crc`, `sha2`, `get_env_var`, `get_hostname`, `dns_lookup`, `encrypt` and
+// their siblings are all named unconditionally in the same list, so this file has never
+// compiled without default features. Gating `community_id` keeps that pre-existing state
+// unchanged instead of adding one more name to it.
+#[cfg(not(feature = "community-id"))]
+fn community_id(_: &mut Criterion) {}
+
+#[cfg(feature = "community-id")]
 bench_function! {
     community_id => vrl::stdlib::CommunityID;
 
