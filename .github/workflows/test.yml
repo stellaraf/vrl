@@ -28,7 +28,7 @@ env:
 
 jobs:
   clippy:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -36,7 +36,7 @@ jobs:
         run: make check-clippy
 
   fmt:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -44,7 +44,7 @@ jobs:
         run: make fmt-check
 
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os == 'ubuntu-latest' && format('codebuild-stellaraf-actions-public-{0}-{1}', github.run_id, github.run_attempt) || matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -56,7 +56,7 @@ jobs:
         run: make test
 
   vrl:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os == 'ubuntu-latest' && format('codebuild-stellaraf-actions-public-{0}-{1}', github.run_id, github.run_attempt) || matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -68,7 +68,7 @@ jobs:
         run: make vrl-test
 
   check-licenses:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -76,7 +76,7 @@ jobs:
         run: make check-licenses
 
   check-msrv:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -84,7 +84,7 @@ jobs:
         run: make check-msrv
 
   check-deny:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -92,7 +92,7 @@ jobs:
         run: make check-deny
 
   check-docs:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -100,7 +100,7 @@ jobs:
         run: make check-docs
 
   check-lockfile:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -108,7 +108,7 @@ jobs:
         run: make check-lockfile
 
   wasm32-unknown-unknown:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2

@@ -22,7 +22,7 @@ env:
 jobs:
   download:
     if: github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-24.04
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     timeout-minutes: 5
     permissions:
       actions: read
@@ -32,11 +32,17 @@ jobs:
       - name: Download PR number
         id: download
         continue-on-error: true
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: docs-review-pr
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ github.token }}
+        env:
+          S3_SOURCE: s3://stellaraf-public-ci-961341522852-us-west-1/actions/${{ github.repository }}/${{ github.event.workflow_run.id }}/${{ github.event.workflow_run.run_attempt }}/${{ github.event.workflow_run.head_sha }}/docs-review-pr/pr-number
+        run: |
+          aws s3 cp "$S3_SOURCE" pr-number --only-show-errors
+          python3 - <<'PYVALIDATE'
+          import json, os, pathlib
+          event = json.loads(pathlib.Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+          expected = {str(p["number"]) for p in event["workflow_run"]["pull_requests"] if p["base"]["repo"]["id"] == event["repository"]["id"]}
+          actual = pathlib.Path("pr-number").read_text().strip()
+          assert actual.isdecimal() and actual in expected, "Artifact PR does not match trusted workflow metadata"
+          PYVALIDATE
 
       - name: Read PR number
         id: read
@@ -48,7 +54,7 @@ jobs:
   remove_label:
     needs: download
     if: needs.download.outputs.pr_number != ''
-    runs-on: ubuntu-24.04
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     timeout-minutes: 5
     concurrency:
       group: pr-labels-${{ needs.download.outputs.pr_number }}

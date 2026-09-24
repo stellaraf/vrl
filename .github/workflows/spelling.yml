@@ -13,7 +13,7 @@ permissions:
 jobs:
   spelling:
     name: Check Spelling
-    runs-on: ubuntu-24.04
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     timeout-minutes: 5
     concurrency:
       group: spelling-${{ github.event.pull_request.number || github.ref }}

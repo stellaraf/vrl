@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       contents: read
     outputs:
@@ -42,7 +42,7 @@ jobs:
   run-check-generated-docs:
     needs: changes
     if: needs.changes.outputs.docs == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       contents: write
     steps:
@@ -109,10 +109,9 @@ jobs:
           && steps.last-commit.outputs.is-auto != 'true'
           && github.event_name == 'pull_request'
           && steps.push.outcome != 'success'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: docs-check-pr
-          path: /tmp/docs-check/pr-number
+        env:
+          S3_DEST: s3://stellaraf-public-ci-961341522852-us-west-1/actions/${{ github.repository }}/${{ github.run_id }}/${{ github.run_attempt }}/${{ github.event.pull_request.head.sha || github.sha }}/docs-check-pr/
+        run: aws s3 cp "/tmp/docs-check/pr-number" "$S3_DEST" --only-show-errors
 
       - name: Fail if docs are out of date
         if: steps.check.outputs.changed == 'true' && steps.push.outcome != 'success'
@@ -122,7 +121,7 @@ jobs:
 
   check-generated-docs:
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     needs: run-check-generated-docs
     steps:
       - run: |

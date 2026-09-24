@@ -30,7 +30,7 @@ env:
 
 jobs:
   check:
-    runs-on: ubuntu-24.04
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     timeout-minutes: 5
     steps:
       - name: Check approval and label
@@ -63,8 +63,6 @@ jobs:
             require('fs').writeFileSync('pr-number', String(context.payload.pull_request.number));
 
       - name: Upload PR number
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: docs-review-pr
-          path: pr-number
-          if-no-files-found: ignore
+        env:
+          S3_DEST: s3://stellaraf-public-ci-961341522852-us-west-1/actions/${{ github.repository }}/${{ github.run_id }}/${{ github.run_attempt }}/${{ github.event.pull_request.head.sha || github.sha }}/docs-review-pr/
+        run: if [ -f "pr-number" ]; then aws s3 cp "pr-number" "$S3_DEST" --only-show-errors; fi

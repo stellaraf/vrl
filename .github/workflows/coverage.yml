@@ -18,7 +18,7 @@ env:
 
 jobs:
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       contents: read
       id-token: write
