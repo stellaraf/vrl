@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   changes:
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     outputs:
@@ -42,7 +42,7 @@ jobs:
   run-check-generated-docs:
     needs: changes
     if: needs.changes.outputs.docs == 'true'
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -91,7 +91,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "$COMMIT_MESSAGE"
-          git push origin HEAD:refs/heads/$HEAD_REF
+          git push origin "HEAD:refs/heads/$HEAD_REF"
 
       - name: Save PR number for comment workflow
         if: >
@@ -109,9 +109,12 @@ jobs:
           && steps.last-commit.outputs.is-auto != 'true'
           && github.event_name == 'pull_request'
           && steps.push.outcome != 'success'
-        env:
-          S3_DEST: s3://stellaraf-public-ci-961341522852-us-west-1/actions/${{ github.repository }}/${{ github.run_id }}/${{ github.run_attempt }}/${{ github.event.pull_request.head.sha || github.sha }}/docs-check-pr/
-        run: aws s3 cp "/tmp/docs-check/pr-number" "$S3_DEST" --only-show-errors
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-check-pr-${{ github.run_attempt }}
+          path: /tmp/docs-check/pr-number
+          retention-days: 30
+          if-no-files-found: error
 
       - name: Fail if docs are out of date
         if: steps.check.outputs.changed == 'true' && steps.push.outcome != 'success'
@@ -121,7 +124,7 @@ jobs:
 
   check-generated-docs:
     if: always()
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     needs: run-check-generated-docs
     steps:
       - run: |

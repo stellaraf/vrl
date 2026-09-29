@@ -20,7 +20,7 @@ permissions: read-all
 jobs:
   analysis:
     name: Scorecard analysis
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     permissions:
       # Needed to upload the results to code-scanning dashboard.
       security-events: write
@@ -59,9 +59,12 @@ jobs:
       # Upload the results as artifacts (optional). Commenting out will disable uploads of run results in SARIF
       # format to the repository Actions tab.
       - name: "Upload artifact"
-        env:
-          S3_DEST: s3://stellaraf-public-ci-961341522852-us-west-1/actions/${{ github.repository }}/${{ github.run_id }}/${{ github.run_attempt }}/${{ github.event.pull_request.head.sha || github.sha }}/SARIF file/
-        run: aws s3 cp "results.sarif" "$S3_DEST" --only-show-errors
+        uses: actions/upload-artifact@v4
+        with:
+          name: scorecard-sarif-${{ github.run_attempt }}
+          path: results.sarif
+          retention-days: 30
+          if-no-files-found: error
 
       # Upload the results to GitHub's code scanning dashboard (optional).
       # Commenting out will disable upload of results to your repo's Code Scanning dashboard

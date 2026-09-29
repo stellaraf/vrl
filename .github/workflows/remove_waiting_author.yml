@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   remove_label:
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write

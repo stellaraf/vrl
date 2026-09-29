@@ -22,7 +22,7 @@ env:
 jobs:
   download:
     if: github.event.workflow_run.conclusion == 'success'
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       actions: read
@@ -32,10 +32,15 @@ jobs:
       - name: Download PR number
         id: download
         continue-on-error: true
-        env:
-          S3_SOURCE: s3://stellaraf-public-ci-961341522852-us-west-1/actions/${{ github.repository }}/${{ github.event.workflow_run.id }}/${{ github.event.workflow_run.run_attempt }}/${{ github.event.workflow_run.head_sha }}/docs-review-pr/pr-number
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-review-pr-${{ github.event.workflow_run.run_attempt }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Validate artifact against trusted workflow metadata
+        if: steps.download.outcome == 'success'
         run: |
-          aws s3 cp "$S3_SOURCE" pr-number --only-show-errors
           python3 - <<'PYVALIDATE'
           import json, os, pathlib
           event = json.loads(pathlib.Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
@@ -49,12 +54,12 @@ jobs:
         if: steps.download.outcome == 'success'
         run: |
           pr_number=$(cat pr-number | tr -d '[:space:]')
-          echo "pr_number=${pr_number}" >> $GITHUB_OUTPUT
+          echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
 
   remove_label:
     needs: download
     if: needs.download.outputs.pr_number != ''
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
       group: pr-labels-${{ needs.download.outputs.pr_number }}
