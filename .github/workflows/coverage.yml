@@ -18,7 +18,7 @@ env:
 
 jobs:
   coverage:
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -45,7 +45,7 @@ jobs:
         run: npm ci --prefix scripts/npm-tools
 
       - name: "Add npm tools to PATH"
-        run: echo "${{ github.workspace }}/scripts/npm-tools/node_modules/.bin" >> $GITHUB_PATH
+        run: echo "${{ github.workspace }}/scripts/npm-tools/node_modules/.bin" >> "$GITHUB_PATH"
 
       - uses: ./.github/actions/dd-token
 

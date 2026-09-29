@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   static-analysis:
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write

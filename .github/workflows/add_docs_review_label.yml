@@ -36,7 +36,7 @@ env:
 
 jobs:
   add_label:
-    runs-on: codebuild-stellaraf-actions-public-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Check member approval
