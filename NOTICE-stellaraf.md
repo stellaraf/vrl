@@ -10,6 +10,26 @@ are modified, and those files remain available under MPL-2.0 here. This file rec
 they are, so a recipient of any Larger Work built from this fork can identify the changed
 Source Code Form without diffing releases.
 
+## Branch `threatlens/zstd-0.14`
+
+Base: `threatlens/community-id-optional` (commit `68a3e83628f1854226c7222e21268b1debf29b37`),
+so it carries every change described in the section below plus one more.
+Author: Stellar (stellaraf), 2026-10-26.
+
+Modified files, which remain under MPL-2.0:
+
+| File | Change |
+|---|---|
+| `Cargo.toml` | The optional `zstd` dependency moves from `0.13` to `0.14.3`, with the same `default-features = false` and `wasm` feature. |
+| `Cargo.lock` | `zstd` 0.14.3, `zstd-safe` 8.2.0 and `zstd-sys` 2.1.2+zstd.1.5.7. |
+
+The `zstd` 0.13 line resolves `zstd-safe` 7.x, which has no release fixing RUSTSEC-2026-0391,
+-0398 or -0403 (or the unsound-API advisories RUSTSEC-2026-0395..0397 and -0399..0406 published
+the same day). The fixed releases are `zstd` >= 0.14.3, `zstd-safe` >= 8.2.0 and `zstd-sys`
+>= 2.1.2. `encode_zstd` and `decode_zstd` call only `zstd::encode_all` and `zstd::decode_all`,
+whose signatures are unchanged in 0.14, so no source file changes and no function's behaviour
+changes beyond the upstream fixes. Upstream `vrl` still requires `zstd` 0.13 at 0.37.0.
+
 ## Branch `threatlens/community-id-optional`
 
 Base: upstream tag `v0.35.0` (commit `d7058406eecb3ead5f438dcf380f0373cac56ca2`).
